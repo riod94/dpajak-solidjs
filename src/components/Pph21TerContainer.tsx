@@ -62,11 +62,41 @@ function Pph21TerContainer() {
 		setState(resetState);
 	};
 
+	function calculateGrossUp(
+		gross: number,
+		rate: { from: number; until: number; rate: number },
+		rates: { from: number; until: number; rate: number }[]
+	): {
+		gross: number;
+		pph21Monthly: number;
+		rate: { from: number; until: number; rate: number };
+	} {
+		const tmpDecimal = rate.rate * 100;
+		const tmpPphGrossUp = (gross * tmpDecimal) / (100 - tmpDecimal);
+		const tmpGross = gross + tmpPphGrossUp;
+
+		if (tmpGross > rate.until) {
+			const newRate = rates.find(
+				(item) =>
+					(tmpGross > item.from && tmpGross <= item.until) ||
+					(item.until == 0 && tmpGross > item.from)
+			) ?? { from: 0, until: 0, rate: 0 };
+			return calculateGrossUp(gross, newRate, rates);
+		} else {
+			return {
+				gross: Math.round(tmpGross),
+				pph21Monthly: Math.floor(tmpGross * rate.rate),
+				rate: rate,
+			};
+		}
+	}
+
 	const handleSubmit = () => {
 		const earnings: any = state().earnings.filter(
 			(item: any) => Money.toNumeric(item.value) > 0 && item.name != "gross"
 		);
-		const gross: number = calculateSum(earnings, "value");
+		let gross: number = calculateSum(earnings, "value");
+
 		const terCategory: string =
 			gross > 0
 				? TER_CATEGORY.find(
@@ -83,21 +113,25 @@ function Pph21TerContainer() {
 				(item: any) => item.category == terCategory
 			)?.rates ?? [];
 
-		const rate: { from: number; until: number; rate: number } = rates?.find(
+		let rate: { from: number; until: number; rate: number } = rates?.find(
 			(item: { from: number; until: number; rate: number }) =>
 				(gross > item.from && gross <= item.until) ||
 				(item.until == 0 && gross > item.from)
 		) ?? { from: 0, until: 0, rate: 0 };
 
-		let pph21Monthly: number = Math.round(gross * rate.rate);
+		let pph21Monthly: number = Math.floor(gross * rate.rate);
 		const method = state().personal.find(
 			(item) => item.name === "taxMethod"
 		)?.value;
 
-		pph21Monthly =
-			method === "GROSS"
-				? pph21Monthly
-				: Math.round((gross + pph21Monthly) * rate.rate);
+		// GROSSUP method
+		if (method === "GROSS UP") {
+			const grossUp = calculateGrossUp(gross, rate, rates);
+
+			gross = grossUp.gross;
+			pph21Monthly = grossUp.pph21Monthly;
+			rate = grossUp.rate;
+		}
 
 		const percent = (rate.rate * 100).toFixed(2);
 

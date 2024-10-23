@@ -2,7 +2,6 @@ import { createSignal, For } from "solid-js";
 import { Flex } from "../ui/flex";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import { RadioGroup } from "../ui/radio-group";
 
 interface ButtonRadioGroupProps {
 	label: string;
@@ -28,7 +27,12 @@ export default function ButtonRadioGroup({
 	};
 
 	return (
-		<Flex flexDirection="col" justifyContent="start" alignItems="start" class="my-2">
+		<Flex
+			flexDirection="col"
+			justifyContent="start"
+			alignItems="start"
+			class="my-2"
+		>
 			<Label class="m-1">{label}</Label>
 			<Flex justifyContent="start" alignItems="center" class="flex-wrap">
 				<For each={data}>

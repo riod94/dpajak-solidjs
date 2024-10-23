@@ -96,7 +96,13 @@ export default function Nav() {
 						<TbBrandGithub size={20} />
 					</Button>
 					<ModeToggle />
-					<Button variant="secondary" class="rounded-lg">
+					<Button
+						as="a"
+						href="https://nusawork.com"
+						target="_blank"
+						variant="secondary"
+						class="rounded-lg"
+					>
 						<TbHeartFilled size={20} color="red" />
 						&nbsp; Sponsor
 					</Button>

@@ -85,7 +85,7 @@ export default function DefaultInput({
 				formattedValue = state(); // Mengembalikan nilai sebelumnya jika input tidak valid
 			}
 		}
-		console.log(formattedValue);
+
 		setState(formattedValue);
 		onChange && onChange(formattedValue);
 	};
